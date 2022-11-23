@@ -1,23 +1,33 @@
-node {
-    properties([parameters([string(defaultValue: 'ronaldo', description: '', name: 'name', trim: false)])])
-   def mvnHome
-   stage('Preparation') { // for display purposes
-     checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/linuxacademy/content-cje-prebuild.git']]])
-           
-      mvnHome = tool 'M3'
-   }
-   stage('Build') {
-      // Run the maven build
-      if (isUnix()) {
-         sh "'${mvnHome}/bin/mvn' -Dmaven.test.failure.ignore clean package"
-      } else {
-         bat(/"${mvnHome}\bin\mvn" -Dmaven.test.failure.ignore clean package/)
-      }
-   }
-   stage('Post Job'){
-       sh 'bin/makeindex'
-   }
-   stage('Results') {
-      archiveArtifacts 'index.jsp'
-   }
+pipeline {
+    agent any
+
+    tools {
+        maven 'maven-3.8.6'
+    }
+
+    stages {
+        stage('Preparation') {
+            steps {
+                checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/willbrid/content-cje-prebuild.git']]])
+            }
+        }
+        stage('Build') {
+            steps {
+                sh "mvn -Dmaven.test.failure.ignore=true clean package"
+            }
+        }
+        stage('Post Job') {
+             steps {
+                sh 'bin/makeindex'
+            }
+        }
+        stage('Results') {
+            steps {
+                junit '**/target/surefire-reports/TEST-*.xml'
+                archiveArtifacts 'index.jsp'
+                fingerprint 'index.jsp'
+            }
+        }
+    
+    }
 }
