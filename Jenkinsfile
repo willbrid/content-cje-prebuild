@@ -23,7 +23,6 @@ pipeline {
         }
         stage('Results') {
             steps {
-                junit '**/target/surefire-reports/TEST-*.xml'
                 archiveArtifacts 'index.jsp'
                 fingerprint 'index.jsp'
             }
