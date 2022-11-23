@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Preparation') {
             steps {
-                checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/willbrid/content-cje-prebuild.git']]])
+                checkout([$class: 'GitSCM', branches: [[name: '*/staging']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/willbrid/content-cje-prebuild.git']]])
             }
         }
         stage('Build') {
